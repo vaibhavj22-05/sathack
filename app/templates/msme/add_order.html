@@ -1,0 +1,701 @@
+{% extends "base.html" %}
+
+{% block title %}Create Order{% endblock %}
+
+{% block content %}
+<script>
+  // Force navbar to highlight Orders for this page
+  window.NAV_ACTIVE_PATH = '/msme/orders';
+</script>
+<div class="container">
+    <div class="page-header">
+        <h2>Create New Order</h2>
+        <a href="{{ url_for('msme.orders') }}" class="btn btn-outline">← Back to Orders</a>
+    </div>
+
+    <!-- Current Warehouse Info -->
+    <div class="warehouse-info">
+        <h3>Order will be created for:</h3>
+        <div class="warehouse-details">
+            <h4>{{ current_warehouse.name }}</h4>
+            <p>{{ current_warehouse.address }}, {{ current_warehouse.city }}, {{ current_warehouse.state }}</p>
+            <a href="{{ url_for('msme.dashboard') }}" class="btn btn-sm btn-outline">Change Warehouse</a>
+        </div>
+    </div>
+
+    <!-- Order Type Controls -->
+    <div class="order-type-controls">
+        <button type="button" class="btn btn-outline" id="btnIncoming">Incoming</button>
+        <button type="button" class="btn btn-primary" id="btnOutgoing">Outgoing</button>
+        {{ form.order_type(id='order_type') }}
+        <div class="warehouse-select" id="warehouseSelect" style="display:none; margin-left: auto;">
+            <label style="margin-right:8px;">Warehouse</label>
+            {{ form.selected_warehouse_id(class="form-control", style="min-width:200px;") }}
+        </div>
+    </div>
+    <div id="order-type-indicator" class="order-type-indicator outgoing">
+        📤 Outgoing Order (Pickup from your warehouse)
+    </div>
+
+    <div class="form-container">
+        <form method="POST" class="order-form" id="orderForm">
+            {{ form.hidden_tag() }}
+
+            <!-- Section 1: Pickup & Delivery -->
+            <div id="section1" class="form-section active">
+                <h3>1. Pickup & Delivery</h3>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        {{ form.pickup_address.label }}
+                        {{ form.pickup_address(class="form-control", rows=3, id="pickup_address") }}
+                        {% if form.pickup_address.errors %}
+                        <div class="error-message">
+                            {% for error in form.pickup_address.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.supplier_name.label }}
+                        {{ form.supplier_name(class="form-control", id="supplier_name") }}
+                        {% if form.supplier_name.errors %}
+                        <div class="error-message">
+                            {% for error in form.supplier_name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.supplier_phone.label }}
+                        {{ form.supplier_phone(class="form-control", id="supplier_phone") }}
+                        {% if form.supplier_phone.errors %}
+                        <div class="error-message">
+                            {% for error in form.supplier_phone.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        {{ form.delivery_address.label }}
+                        {{ form.delivery_address(class="form-control", rows=3, id="delivery_address") }}
+                        {% if form.delivery_address.errors %}
+                        <div class="error-message">
+                            {% for error in form.delivery_address.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.customer_name.label }}
+                        {{ form.customer_name(class="form-control", id="customer_name") }}
+                        {% if form.customer_name.errors %}
+                        <div class="error-message">
+                            {% for error in form.customer_name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.customer_phone.label }}
+                        {{ form.customer_phone(class="form-control", id="customer_phone") }}
+                        {% if form.customer_phone.errors %}
+                        <div class="error-message">
+                            {% for error in form.customer_phone.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="section-actions">
+                    <button type="button" class="btn btn-primary" onclick="showSection('section2')">Next →</button>
+                </div>
+            </div>
+
+            <!-- Section 2: Package Details -->
+            <div id="section2" class="form-section">
+                <h3>2. Package Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.package_name.label }}
+                        {{ form.package_name(class="form-control", id="package_name") }}
+                        {% if form.package_name.errors %}
+                        <div class="error-message">
+                            {% for error in form.package_name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.package_type.label }}
+                        {{ form.package_type(class="form-control", id="package_type") }}
+                        {% if form.package_type.errors %}
+                        <div class="error-message">
+                            {% for error in form.package_type.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.quantity.label }}
+                        {{ form.quantity(class="form-control", id="quantity") }}
+                        {% if form.quantity.errors %}
+                        <div class="error-message">
+                            {% for error in form.quantity.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.package_priority.label }}
+                        {{ form.package_priority(class="form-control", id="package_priority") }}
+                        {% if form.package_priority.errors %}
+                        <div class="error-message">
+                            {% for error in form.package_priority.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        {{ form.package_description.label }}
+                        {{ form.package_description(class="form-control", rows=3, id="package_description") }}
+                        {% if form.package_description.errors %}
+                        <div class="error-message">
+                            {% for error in form.package_description.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="section-actions">
+                    <button type="button" class="btn btn-outline" onclick="showSection('section1')">← Back</button>
+                    <button type="button" class="btn btn-primary" onclick="showSection('section3')">Next →</button>
+                </div>
+            </div>
+
+            <!-- Section 3: Logistics Details -->
+            <div id="section3" class="form-section">
+                <h3>3. Logistics Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.logistic_company.label }}
+                        {{ form.logistic_company(class="form-control", id="logistic_company") }}
+                        {% if form.logistic_company.errors %}
+                        <div class="error-message">
+                            {% for error in form.logistic_company.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.driver_name.label }}
+                        {{ form.driver_name(class="form-control", id="driver_name") }}
+                        {% if form.driver_name.errors %}
+                        <div class="error-message">
+                            {% for error in form.driver_name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.driver_phone.label }}
+                        {{ form.driver_phone(class="form-control", id="driver_phone") }}
+                        {% if form.driver_phone.errors %}
+                        <div class="error-message">
+                            {% for error in form.driver_phone.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.driver_truck_no.label }}
+                        {{ form.driver_truck_no(class="form-control", id="driver_truck_no") }}
+                        {% if form.driver_truck_no.errors %}
+                        <div class="error-message">
+                            {% for error in form.driver_truck_no.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="section-actions">
+                    <button type="button" class="btn btn-outline" onclick="showSection('section2')">← Back</button>
+                    <button type="button" class="btn btn-primary" onclick="showSection('section4')">Next →</button>
+                </div>
+            </div>
+
+            <!-- Section 4: Schedule -->
+            <div id="section4" class="form-section">
+                <h3>4. Schedule</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.date.label }}
+                        {{ form.date(class="form-control", id="date", type="date") }}
+                        {% if form.date.errors %}
+                        <div class="error-message">
+                            {% for error in form.date.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.time_slot.label }}
+                        {{ form.time_slot(class="form-control", id="time_slot") }}
+                        {% if form.time_slot.errors %}
+                        <div class="error-message">
+                            {% for error in form.time_slot.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="section-actions">
+                    <button type="button" class="btn btn-outline" onclick="showSection('section3')">← Back</button>
+                    <button type="submit" class="btn btn-primary">Create Order</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.warehouse-info {
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-left: 4px solid #1976d2;
+}
+
+.warehouse-info h3 {
+    margin: 0 0 15px 0;
+    color: #1976d2;
+    font-size: 1.1em;
+}
+
+.warehouse-details h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.warehouse-details p {
+    margin: 0 0 15px 0;
+    color: #666;
+}
+
+.order-type-indicator {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.order-type-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.order-type-indicator.incoming {
+    background: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.order-type-indicator.outgoing {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.form-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+.form-section {
+    display: none;
+}
+
+.form-section.active {
+    display: block;
+}
+
+.form-section h3 {
+    color: #333;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.form-control[rows] {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+.section-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-outline {
+    border: 1px solid #007bff;
+    color: #007bff;
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+// Store warehouse address for comparison
+const warehouseAddress = "{{ current_warehouse.address }}".toLowerCase().trim();
+const msmeName = "{{ current_user.name if current_user.is_authenticated else '' }}";
+// Map of warehouseId -> full address string
+const warehouseAddresses = {
+    {% for w in user_warehouses %}
+    "{{ w.id }}": "{{ w.address }}, {{ w.city }}, {{ w.state }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+};
+
+function setOrderType(type) {
+    const indicator = document.getElementById('order-type-indicator');
+    const incomingBtn = document.getElementById('btnIncoming');
+    const outgoingBtn = document.getElementById('btnOutgoing');
+    const orderTypeInput = document.getElementById('order_type');
+    const warehouseSelect = document.getElementById('warehouseSelect');
+
+    orderTypeInput.value = type;
+    if (type === 'incoming') {
+        indicator.textContent = '🔄 Incoming Order (Delivery to your warehouse)';
+        indicator.className = 'order-type-indicator incoming';
+        incomingBtn.classList.add('btn-primary');
+        incomingBtn.classList.remove('btn-outline');
+        outgoingBtn.classList.add('btn-outline');
+        outgoingBtn.classList.remove('btn-primary');
+        warehouseSelect.style.display = 'block';
+    } else {
+        indicator.textContent = '📤 Outgoing Order (Pickup from your warehouse)';
+        indicator.className = 'order-type-indicator outgoing';
+        outgoingBtn.classList.add('btn-primary');
+        outgoingBtn.classList.remove('btn-outline');
+        incomingBtn.classList.add('btn-outline');
+        incomingBtn.classList.remove('btn-primary');
+        warehouseSelect.style.display = 'none';
+        // Clear warehouse selection for outgoing orders
+        const warehouseSelectEl = document.getElementById('selected_warehouse_id');
+        if (warehouseSelectEl) {
+            warehouseSelectEl.value = '';
+        }
+    }
+
+    autoFillAddresses(true);
+}
+
+function autoFillAddresses(clearOther = false) {
+    const orderTypeInput = document.getElementById('order_type');
+    const pickupAddressField = document.getElementById('pickup_address');
+    const deliveryAddressField = document.getElementById('delivery_address');
+    const warehouseSelectEl = document.getElementById('selected_warehouse_id');
+
+    // Determine selected warehouse address text from select options
+    let selectedWhText = '';
+    if (warehouseSelectEl) {
+        const whId = warehouseSelectEl.value;
+        selectedWhText = warehouseAddresses[whId] || "{{ current_warehouse.address }}, {{ current_warehouse.city }}, {{ current_warehouse.state }}";
+    }
+
+    if (orderTypeInput.value === 'incoming') {
+        // Delivery to warehouse
+        if (deliveryAddressField) deliveryAddressField.value = selectedWhText || "{{ current_warehouse.address }}, {{ current_warehouse.city }}, {{ current_warehouse.state }}";
+        if (clearOther && pickupAddressField) pickupAddressField.value = '';
+    } else {
+        // Outgoing: pickup from warehouse
+        if (pickupAddressField) pickupAddressField.value = selectedWhText || "{{ current_warehouse.address }}, {{ current_warehouse.city }}, {{ current_warehouse.state }}";
+        if (clearOther && deliveryAddressField) deliveryAddressField.value = '';
+    }
+}
+
+function showSection(sectionId) {
+    // Hide all sections
+    const sections = document.querySelectorAll('.form-section');
+    sections.forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Show the selected section
+    document.getElementById(sectionId).classList.add('active');
+}
+
+// Function to check if pickup address matches warehouse address
+function checkPickupAddress() {
+    const pickupAddressField = document.getElementById('pickup_address');
+    const customerNameField = document.getElementById('customer_name');
+    const orderTypeIndicator = document.getElementById('order-type-indicator');
+    
+    if (pickupAddressField && customerNameField) {
+        const pickupAddress = pickupAddressField.value.toLowerCase().trim();
+        
+        if (pickupAddress === warehouseAddress) {
+            // Outgoing order: pickup from your warehouse
+            if (orderTypeIndicator) {
+                orderTypeIndicator.textContent = "📤 Outgoing Order (Pickup from your warehouse)";
+                orderTypeIndicator.className = "order-type-indicator outgoing";
+            }
+
+            // Supplier fields not needed for outgoing
+            const supplierNameField = document.getElementById('supplier_name');
+            const supplierPhoneField = document.getElementById('supplier_phone');
+            if (supplierNameField) supplierNameField.disabled = true;
+            if (supplierPhoneField) supplierPhoneField.disabled = true;
+
+        } else {
+            // Incoming order: pickup from external location (supplier)
+            if (orderTypeIndicator) {
+                orderTypeIndicator.textContent = "🔄 Incoming Order (Pickup from external location)";
+                orderTypeIndicator.className = "order-type-indicator incoming";
+            }
+
+            // Enable supplier fields
+            const supplierNameField = document.getElementById('supplier_name');
+            const supplierPhoneField = document.getElementById('supplier_phone');
+            if (supplierNameField) supplierNameField.disabled = false;
+            if (supplierPhoneField) supplierPhoneField.disabled = false;
+
+            // Auto-fill customer name with MSME for incoming if blank
+            if (!customerNameField.value) {
+                customerNameField.value = msmeName;
+            }
+        }
+    }
+}
+
+// Add form validation before submission
+function validateForm() {
+    const orderType = document.getElementById('order_type').value;
+    const requiredFields = [
+        'pickup_address', 'delivery_address', 'package_name', 'package_type',
+        'quantity', 'package_priority', 'logistic_company', 'driver_name',
+        'driver_phone', 'date', 'time_slot'
+    ];
+    
+    // Add warehouse validation for incoming orders
+    if (orderType === 'incoming') {
+        requiredFields.push('selected_warehouse_id');
+    }
+    
+    let isValid = true;
+    const errors = [];
+    
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field && !field.value.trim()) {
+            isValid = false;
+            const label = field.previousElementSibling ? field.previousElementSibling.textContent : fieldId;
+            errors.push(`${label} is required`);
+            field.style.borderColor = '#dc3545';
+        } else if (field) {
+            field.style.borderColor = '#ddd';
+        }
+    });
+    
+    if (!isValid) {
+        alert('Please fill in all required fields:\n' + errors.join('\n'));
+        return false;
+    }
+    
+    return true;
+}
+
+// Add event listener to pickup address field
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Initialize order type
+    setOrderType('outgoing');
+    document.getElementById('btnIncoming').addEventListener('click', () => setOrderType('incoming'));
+    document.getElementById('btnOutgoing').addEventListener('click', () => setOrderType('outgoing'));
+    const warehouseSelectEl = document.getElementById('selected_warehouse_id');
+    if (warehouseSelectEl) warehouseSelectEl.addEventListener('change', () => autoFillAddresses(false));
+    const pickupAddressField = document.getElementById('pickup_address');
+    if (pickupAddressField) {
+        pickupAddressField.addEventListener('input', checkPickupAddress);
+        pickupAddressField.addEventListener('blur', checkPickupAddress);
+    }
+    
+    // Add form validation on submit
+    const orderForm = document.getElementById('orderForm');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            
+            if (!validateForm()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+    
+    // Initial check
+    checkPickupAddress();
+    autoFillAddresses();
+    
+});
+</script>
+{% endblock %}

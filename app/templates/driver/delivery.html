@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Route - ParkNload</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .delivery-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .status-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/drivers/">
+                <i class="fas fa-truck"></i> ParkNload Driver
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text text-white">
+                    <i class="fas fa-user"></i> Driver Access
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h2 class="mb-0"><i class="fas fa-route"></i> Delivery Route</h2>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="startTracking"><i class="fas fa-play"></i> Start Tracking</button>
+                    <button class="btn btn-danger" id="stopTracking" style="display: none;"><i class="fas fa-stop"></i> Stop Tracking</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Map Column -->
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-map"></i> Live Route Map</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Info Column -->
+            <div class="col-lg-4 mb-4">
+                <div class="delivery-info">
+                    <h5 class="mb-3"><i class="fas fa-box"></i> Delivery Details</h5>
+                    
+                    <div class="mb-3"><strong>Customer:</strong><br><span class="text-primary">{{ delivery.customer }}</span></div>
+                    <div class="mb-3"><strong>Phone:</strong><br><span class="text-muted">{{ delivery.phone }}</span></div>
+                    <div class="mb-3"><strong>Pickup:</strong><br><span class="text-success">{{ delivery.pickup }}</span></div>
+                    <div class="mb-3"><strong>Delivery:</strong><br><span class="text-danger">{{ delivery.delivery }}</span></div>
+                    <div class="mb-3"><strong>Status:</strong><br><span class="badge bg-warning status-badge" id="deliveryStatus">In Progress</span></div>
+                    <div class="mb-3"><strong>Current Location:</strong><br><div id="currentLocation" class="text-muted"><i class="fas fa-spinner fa-spin"></i> Getting location...</div></div>
+                    <div class="mb-3"><strong>Distance to Delivery:</strong><br><div id="distanceInfo" class="text-muted">Calculating...</div></div>
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-primary w-100 mb-2" id="updateLocation"><i class="fas fa-map-marker-alt"></i> Update Location</button>
+                        <button class="btn btn-success w-100" id="markDelivered"><i class="fas fa-check"></i> Mark as Delivered</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route Summary -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-info text-white"><h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> Route Summary</h5></div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3"><i class="fas fa-map-marker-alt fa-2x text-success mb-2"></i><h6>Pickup Point</h6><small class="text-muted">{{ delivery.pickup }}</small></div>
+                            <div class="col-md-3"><i class="fas fa-arrow-right fa-2x text-primary mb-2"></i><h6>Route</h6><small class="text-muted">Mumbai Airport → Bandra</small></div>
+                            <div class="col-md-3"><i class="fas fa-map-marker-alt fa-2x text-danger mb-2"></i><h6>Delivery Point</h6><small class="text-muted">{{ delivery.delivery }}</small></div>
+                            <div class="col-md-3"><i class="fas fa-clock fa-2x text-warning mb-2"></i><h6>Estimated Time</h6><small class="text-muted" id="estimatedTime">Calculating...</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Leaflet Routing Machine -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        let map, currentMarker, deliveryMarker, control;
+        let isTracking = false, trackingInterval;
+
+        // Delivery coords (Mumbai by default)
+        const deliveryCoords = [19.0760, 72.8777];
+
+        function initMap() {
+            map = L.map('map').setView(deliveryCoords, 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            deliveryMarker = L.marker(deliveryCoords, {icon: L.icon({iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"})}).addTo(map).bindPopup("<b>Delivery Point</b><br>{{ delivery.delivery }}");
+            
+            getCurrentLocation();
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const latlng = [pos.coords.latitude, pos.coords.longitude];
+                        updateCurrentLocation(latlng);
+                        calculateRoute(latlng, deliveryCoords);
+                    },
+                    () => document.getElementById('currentLocation').innerHTML = '<span class="text-danger">Location access denied</span>',
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+                );
+            } else {
+                document.getElementById('currentLocation').innerHTML = '<span class="text-danger">Geolocation not supported</span>';
+            }
+        }
+
+        function updateCurrentLocation(latlng) {
+            if (currentMarker) map.removeLayer(currentMarker);
+            currentMarker = L.marker(latlng, {icon: L.icon({iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"})}).addTo(map).bindPopup("You are here").openPopup();
+            map.setView(latlng, 14);
+            document.getElementById('currentLocation').innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${latlng[0].toFixed(6)}, ${latlng[1].toFixed(6)}</span>`;
+            sendLocationToServer(latlng[0], latlng[1]);
+        }
+
+        function calculateRoute(start, end) {
+            if (control) map.removeControl(control);
+            control = L.Routing.control({
+                waypoints: [L.latLng(start), L.latLng(end)],
+                routeWhileDragging: false,
+                createMarker: () => null
+            }).on('routesfound', function(e) {
+                const route = e.routes[0];
+                document.getElementById('distanceInfo').innerHTML = `<span class="text-primary"><i class="fas fa-road"></i> ${ (route.summary.totalDistance / 1000).toFixed(2) } km</span>`;
+                document.getElementById('estimatedTime').innerHTML = `<span class="text-warning"><i class="fas fa-clock"></i> ${ Math.round(route.summary.totalTime / 60) } mins</span>`;
+            }).addTo(map);
+        }
+
+        async function sendLocationToServer(lat, lng) {
+            try {
+                await fetch('/drivers/api/location', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ latitude: lat, longitude: lng })
+                });
+            } catch (err) { console.error('Error sending location:', err); }
+        }
+
+        // Event Listeners
+        document.getElementById('startTracking').addEventListener('click', () => {
+            isTracking = true;
+            document.getElementById('startTracking').style.display = 'none';
+            document.getElementById('stopTracking').style.display = 'inline-block';
+            trackingInterval = setInterval(getCurrentLocation, 30000);
+            getCurrentLocation();
+        });
+
+        document.getElementById('stopTracking').addEventListener('click', () => {
+            isTracking = false;
+            document.getElementById('stopTracking').style.display = 'none';
+            document.getElementById('startTracking').style.display = 'inline-block';
+            if (trackingInterval) clearInterval(trackingInterval);
+        });
+
+        document.getElementById('updateLocation').addEventListener('click', getCurrentLocation);
+
+        document.getElementById('markDelivered').addEventListener('click', () => {
+            if (confirm('Mark this delivery as completed?')) {
+                document.getElementById('deliveryStatus').textContent = 'Delivered';
+                document.getElementById('deliveryStatus').className = 'badge bg-success status-badge';
+            }
+        });
+
+        window.addEventListener('load', initMap);
+    </script>
+</body>
+</html>
+
+

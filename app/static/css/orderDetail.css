@@ -1,0 +1,292 @@
+/* Order Detail Page Styles */
+.order-detail-page {
+	max-width: 860px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+.order-detail-page .page-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 30px;
+}
+
+.order-detail-page .header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.order-detail-page .header-actions {
+	display: flex;
+	gap: 10px;
+}
+
+.order-detail-page .order-detail-container {
+	display: grid;
+	gap: 25px;
+}
+
+.order-detail-page .order-overview,
+.order-detail-page .detail-section {
+	background: #ffffff;
+	border-radius: 10px;
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+	padding: 22px;
+}
+
+.order-detail-page .overview-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+	border-bottom: 2px solid #e9ecef;
+}
+
+.order-detail-page .overview-header h3 { margin: 0; color: #0f766e; }
+
+.order-detail-page .header-badges {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.order-detail-page .order-type-badge {
+	padding: 6px 16px;
+	border-radius: 20px;
+	font-size: 0.85em;
+	font-weight: 500;
+}
+
+.order-detail-page .order-type-badge.incoming {
+	background: #d1ecf1;
+	color: #0c5460;
+}
+
+.order-detail-page .order-type-badge.outgoing {
+	background: #fff3cd;
+	color: #856404;
+}
+
+.order-detail-page .order-type-text.incoming {
+	color: #0c5460;
+	font-weight: 600;
+}
+
+.order-detail-page .order-type-text.outgoing {
+	color: #856404;
+	font-weight: 600;
+}
+
+.order-detail-page .overview-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 20px;
+}
+
+.order-detail-page .overview-item {
+	display: flex;
+	flex-direction: column;
+}
+
+.order-detail-page .overview-item label {
+	font-size: 0.85em;
+	color: #666;
+	margin-bottom: 5px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.order-detail-page .overview-item span {
+	font-size: 1.1em;
+	color: #333;
+	font-weight: 500;
+}
+
+.order-detail-page .detail-section h3 {
+	color: #0f766e;
+	margin-bottom: 18px;
+	padding-bottom: 10px;
+	border-bottom: 2px solid #e5e7eb;
+}
+
+.order-detail-page .warehouse-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.order-detail-page .warehouse-details h4 {
+	margin: 0 0 15px 0;
+	color: #007bff;
+	font-size: 1.2em;
+}
+
+.order-detail-page .warehouse-details p {
+	margin: 8px 0;
+	color: #666;
+}
+
+.order-detail-page .warehouse-details strong {
+	color: #333;
+}
+
+.order-detail-page .warehouse-status {
+	margin-left: 20px;
+}
+
+.order-detail-page .status-badge {
+	padding: 6px 16px;
+	border-radius: 20px;
+	font-size: 0.85em;
+	font-weight: 500;
+}
+
+.order-detail-page .status-badge.active {
+	background: #d4edda;
+	color: #155724;
+}
+
+.order-detail-page .status-badge.inactive {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.order-detail-page .package-details,
+.order-detail-page .logistics-info {
+	display: grid;
+	gap: 15px;
+}
+
+.order-detail-page .detail-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px;
+	background: #f8f9fa;
+	border-radius: 6px;
+}
+
+.order-detail-page .detail-item label {
+	font-weight: 500;
+	color: #333;
+}
+
+.order-detail-page .detail-item span {
+	color: #666;
+}
+
+.order-detail-page .location-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+.order-detail-page .location-card {
+	background: #f8f9fa;
+	padding: 20px;
+	border-radius: 6px;
+	border-left: 4px solid #007bff;
+}
+
+.order-detail-page .location-card.pickup { border-left-color: #28a745; }
+.order-detail-page .location-card.delivery { border-left-color: #ffc107; }
+
+.order-detail-page .location-card h4 {
+	margin: 0 0 15px 0;
+	color: #333;
+	font-size: 1.1em;
+}
+
+.order-detail-page .address {
+	font-size: 1.1em;
+	color: #495057;
+	margin-bottom: 15px;
+	line-height: 1.5;
+}
+
+.order-detail-page .contact-info p { margin: 8px 0; color: #666; }
+.order-detail-page .contact-info strong { color: #333; }
+
+.order-detail-page .driver-info {
+	background: #f8f9fa;
+	padding: 20px;
+	border-radius: 6px;
+	margin-top: 15px;
+}
+
+.order-detail-page .driver-info h4 { margin: 0 0 15px 0; color: #333; }
+.order-detail-page .driver-details p { margin: 8px 0; color: #666; }
+.order-detail-page .driver-details strong { color: #333; }
+
+.order-detail-page .not-assigned { color: #dc3545; font-style: italic; }
+
+.order-detail-page .priority-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 500; }
+.order-detail-page .priority-badge.high { background: #f8d7da; color: #721c24; }
+.order-detail-page .priority-badge.medium { background: #fff3cd; color: #856404; }
+.order-detail-page .priority-badge.low { background: #d4edda; color: #155724; }
+
+.order-detail-page .btn {
+	display: inline-block;
+	padding: 8px 16px;
+	text-decoration: none;
+	border-radius: 4px;
+	transition: all 0.3s;
+	border: none;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.order-detail-page .btn-outline { border: 1px solid #007bff; color: #007bff; background: transparent; }
+.order-detail-page .btn-outline:hover { background: #007bff; color: white; }
+.order-detail-page .btn-primary { background: #007bff; color: white; }
+.order-detail-page .btn-primary:hover { background: #0056b3; }
+
+.order-detail-page .btn-danger {
+	background: #dc2626;
+	color: white;
+}
+
+.order-detail-page .btn-danger:hover {
+	background: #b91c1c;
+}
+
+/* Map Container Styles */
+.order-detail-page .map-container {
+	background: #ffffff;
+	border-radius: 14px;
+	padding: 18px;
+	border: 1px solid #e5e7eb;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	margin-bottom: 22px;
+}
+
+.order-detail-page .map-container:hover { border-color: #14b8a6; box-shadow: 0 6px 16px rgba(20,184,166,0.08); }
+.order-detail-page .map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.order-detail-page .map-title { font-size: 1.25rem; font-weight: 700; color: #0f766e; }
+.order-detail-page .map-controls { display: flex; gap: 10px; }
+
+.order-detail-page .map-btn { background: #14b8a6; color: #ffffff; border: 1px solid #14b8a6; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: background 0.2s ease, color 0.2s ease; }
+.order-detail-page .map-btn:hover { background: #0f766e; border-color: #0f766e; }
+
+.order-detail-page .map-display { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 12px; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+
+.order-detail-page #orderMap { width: 100%; height: 100%; min-height: 300px; border-radius: 10px; }
+.order-detail-page .map-display:hover { background: #ccfbf1; }
+.order-detail-page .map-icon { font-size: 3rem; color: #14b8a6; margin-bottom: 15px; }
+.order-detail-page .map-text { font-size: 1.1rem; font-weight: 600; color: #0f766e; }
+
+@media (max-width: 768px) {
+	.order-detail-page .page-header { flex-direction: column; gap: 15px; align-items: flex-start; }
+	.order-detail-page .header-actions { flex-direction: column; width: 100%; }
+	.order-detail-page .btn { width: 100%; text-align: center; }
+	.order-detail-page .overview-grid { grid-template-columns: 1fr; }
+	.order-detail-page .location-grid { grid-template-columns: 1fr; }
+	.order-detail-page .warehouse-info { flex-direction: column; gap: 15px; }
+	.order-detail-page .warehouse-status { margin-left: 0; }
+}

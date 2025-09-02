@@ -1,0 +1,9 @@
+.env 
+/__pycache__/
+/instance/
+app/__pycache__/
+app/routes/__pycache__/
+*.mp4
+*.MOV
+DRIVER_README.md
+app/static/assets/workflow.mp4

@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}Add Warehouse{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="warehouse-form-container">
+    <div class="form-wrapper">
+        <!-- Header Section -->
+        <div class="form-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 21H21V3L3 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 21V15H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h1>Add New Warehouse</h1>
+                    <p>Create a new warehouse to manage your inventory and orders</p>
+                </div>
+            </div>
+            <a href="{{ url_for('msme.warehouses') }}" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to Warehouses
+            </a>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-content">
+            <form method="POST" class="warehouse-form">
+                {{ form.hidden_tag() }}
+                
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 7L10 17L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3>Basic Information</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-input", placeholder="Enter warehouse name") }}
+                            {% if form.name.errors %}
+                            <div class="error-message">
+                                {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Details Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10C21 17L12 23L3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Address Details</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            {{ form.address.label(class="form-label") }}
+                            {{ form.address(class="form-input form-textarea", rows=3, placeholder="Enter complete address") }}
+                            {% if form.address.errors %}
+                            <div class="error-message">
+                                {% for error in form.address.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.city.label(class="form-label") }}
+                            {{ form.city(class="form-input", placeholder="Enter city") }}
+                            {% if form.city.errors %}
+                            <div class="error-message">
+                                {% for error in form.city.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.state.label(class="form-label") }}
+                            {{ form.state(class="form-input", placeholder="Enter state") }}
+                            {% if form.state.errors %}
+                            <div class="error-message">
+                                {% for error in form.state.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.pincode.label(class="form-label") }}
+                            {{ form.pincode(class="form-input", placeholder="Enter pincode") }}
+                            {% if form.pincode.errors %}
+                            <div class="error-message">
+                                {% for error in form.pincode.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7294C21.7209 20.9846 21.5573 21.2136 21.3523 21.4014C21.1473 21.5892 20.9054 21.7315 20.6407 21.8197C20.376 21.9079 20.0942 21.9401 19.81 21.914C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77382 17.3146 6.72533 15.2661 5.18999 12.85C3.49997 10.2412 2.44824 7.27099 2.11999 4.19C2.09394 3.90597 2.12616 3.62425 2.21438 3.35962C2.3026 3.09499 2.44488 2.85315 2.63266 2.64818C2.82044 2.44321 3.04942 2.27872 3.30463 2.16716C3.55984 2.0556 3.83556 1.99867 4.114 2H7.114C7.59523 1.99522 8.06565 2.16708 8.43373 2.48353C8.80182 2.79999 9.04201 3.23945 9.11399 3.72C9.23669 4.68007 9.47144 5.62273 9.81399 6.53C9.91837 6.88792 9.91693 7.25777 9.80971 7.61457C9.70249 7.97137 9.49342 8.29862 9.20399 8.56L8.40399 9.36C9.74788 11.6766 11.6234 13.5521 13.94 14.89L14.74 14.09C15.0014 13.8006 15.3286 13.5915 15.6854 13.4843C16.0422 13.3771 16.4121 13.3757 16.77 13.48C17.6773 13.8226 18.6199 14.0573 19.58 14.18C20.0605 14.252 20.5 14.4922 20.8165 14.8603C21.133 15.2284 21.3048 15.6988 21.3 16.18L22 16.92Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3>Contact Information</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.contact_person.label(class="form-label") }}
+                            {{ form.contact_person(class="form-input", placeholder="Enter contact person name") }}
+                            {% if form.contact_person.errors %}
+                            <div class="error-message">
+                                {% for error in form.contact_person.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.contact_phone.label(class="form-label") }}
+                            {{ form.contact_phone(class="form-input", placeholder="Enter contact phone number") }}
+                            {% if form.contact_phone.errors %}
+                            <div class="error-message">
+                                {% for error in form.contact_phone.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                {{ form.is_active(class="form-checkbox") }}
+                                {{ form.is_active.label(class="checkbox-label") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Create Warehouse
+                    </button>
+                    <a href="{{ url_for('msme.warehouses') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.warehouse-form-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 20px;
+}
+
+.form-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Header Section */
+.form-header {
+    background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+    color: white;
+    padding: 40px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-icon {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 16px;
+    border-radius: 12px;
+    color: white;
+}
+
+.header-text h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.header-text p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Form Content */
+.form-content {
+    padding: 40px 30px;
+}
+
+.form-section {
+    margin-bottom: 40px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.section-icon {
+    background: #f0fdfa;
+    color: #14b8a6;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.section-header h3 {
+    color: #1f2937;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #14b8a6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.form-checkbox {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: #14b8a6;
+}
+
+.checkbox-label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #fef2f2;
+    border-radius: 6px;
+    border-left: 4px solid #dc2626;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-start;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 2px solid #f1f5f9;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(20, 184, 166, 0.4);
+}
+
+.btn-outline {
+    border: 2px solid #e2e8f0;
+    color: #6b7280;
+    background: white;
+}
+
+.btn-outline:hover {
+    border-color: #14b8a6;
+    color: #14b8a6;
+    background: #f0fdfa;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .warehouse-form-container {
+        padding: 10px;
+    }
+    
+    .form-wrapper {
+        border-radius: 12px;
+    }
+    
+    .form-header {
+        padding: 30px 20px;
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .form-content {
+        padding: 30px 20px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-text h1 {
+        font-size: 1.5rem;
+    }
+    
+    .form-content {
+        padding: 20px 15px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/order.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h2>Inventory{% if current_warehouse %} - {{ current_warehouse.name }}{% endif %}</h2>
+        <div>
+            <a href="{{ url_for('msme.dashboard') }}" class="btn btn-outline">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Auto Zoning (no image required) -->
+    <div class="filter-section" style="margin-bottom: 20px;">
+        <h3 style="margin-bottom: 12px;">Auto-Zoning Recommendation</h3>
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">Warehouse Width (m)</label>
+                <input type="number" id="whWidth" class="filter-input" placeholder="e.g., 50" min="1" step="0.1">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Warehouse Height (m)</label>
+                <input type="number" id="whHeight" class="filter-input" placeholder="e.g., 30" min="1" step="0.1">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Zoning Strategy</label>
+                <select id="zoningStrategy" class="filter-select">
+                    <option value="type">By Category (Type)</option>
+                    <option value="name">By Item</option>
+                    <option value="usage">By Usage Frequency</option>
+                </select>
+            </div>
+            <div class="filter-group" style="align-self: end;">
+                <button class="btn btn-primary" id="generatePlanBtn">Generate Zones</button>
+            </div>
+        </div>
+        <div id="plannerError" style="color:#dc2626; margin-top:8px; display:none;"></div>
+    </div>
+    
+
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">Search</label>
+                <input type="text" class="filter-input" placeholder="Search by item name or type" oninput="filterInventory(this.value)">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Type</label>
+                <select class="filter-select" onchange="filterType(this.value)">
+                    <option value="">All</option>
+                    <option value="general">General</option>
+                    <option value="fragile">Fragile</option>
+                    <option value="perishable">Perishable</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="orders-table-container">
+        <div class="table-scroll">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Last Movement</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryBody">
+                    {% if items %}
+                        {% for item in items %}
+                        <tr>
+                            <td class="primary-text item-name">{{ item.name }}</td>
+                            <td class="secondary-text item-type">{{ item.type|title }}</td>
+                            <td class="primary-text">{{ item.quantity }}</td>
+                            <td class="secondary-text">{{ item.last_movement.strftime('%d-%m-%Y %H:%M') if item.last_movement else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding: 20px;">No inventory to show</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="{{ url_for('msme.dashboard') }}">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// No planner logic
+
+function filterInventory(query) {
+    query = (query || '').toLowerCase();
+    const rows = document.querySelectorAll('#inventoryBody tr');
+    rows.forEach(row => {
+        const name = row.querySelector('.item-name')?.textContent.toLowerCase() || '';
+        const type = row.querySelector('.item-type')?.textContent.toLowerCase() || '';
+        row.style.display = (name.includes(query) || type.includes(query)) ? '' : 'none';
+    });
+}
+
+function filterType(type) {
+    type = (type || '').toLowerCase();
+    const rows = document.querySelectorAll('#inventoryBody tr');
+    rows.forEach(row => {
+        const rowType = row.querySelector('.item-type')?.textContent.toLowerCase() || '';
+        row.style.display = (!type || rowType === type) ? '' : 'none';
+    });
+}
+
+// Planner removed
+</script>
+{% endblock %}
+
+

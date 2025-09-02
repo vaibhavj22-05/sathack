@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Complete Profile</title>
+</head>
+<body>
+    <form method="POST" action="{{ url_for('views.complete_profile') }}">
+        {{ form.hidden_tag() }}
+        
+        <p><strong>Name:</strong> {{ current_user.name }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+        
+        <p>
+            {{ form.phone.label }}<br>
+            {{ form.phone(size=20) }}
+        </p>
+        
+        <p>{{ form.submit() }}</p>
+    </form>
+</body>
+</html>

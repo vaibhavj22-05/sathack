@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}MSME Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Welcome Section with Workspace Dropdown -->
+        <div class="welcome-section">
+            <div class="welcome-title">Welcome {{ current_user.name }}!</div>
+            <div class="workspace-section">
+                <div class="workspace-dropdown">
+                    <div class="workspace-selector" id="workspaceSelector" onclick="toggleWorkspace()">
+                        <span id="selectedWorkspace">
+                            {% if current_warehouse %}
+                                {{ current_warehouse.name }}
+                            {% else %}
+                                Select Workspace
+                            {% endif %}
+                        </span>
+                        <span class="dropdown-arrow" id="dropdownArrow">▼</span>
+                    </div>
+                    <div class="workspace-options" id="workspaceOptions">
+                        {% if user_warehouses %}
+                            {% for warehouse in user_warehouses %}
+                            <div class="workspace-option" onclick="selectWorkspace('{{ warehouse.id }}', '{{ warehouse.name }}')">
+                                <div class="warehouse-info">
+                                    <span class="warehouse-icon">🏢</span>
+                                    <span class="warehouse-name">{{ warehouse.name }}</span>
+                                </div>
+                                <span class="warehouse-location">{{ warehouse.city }}, {{ warehouse.state }}</span>
+                            </div>
+                            {% endfor %}
+                            <div class="workspace-option" onclick="window.location.href='{{ url_for('msme.add_warehouse') }}'">
+                                <div class="warehouse-info">
+                                    <span class="warehouse-icon">➕</span>
+                                    <span class="warehouse-name">Add Warehouse</span>
+                                </div>
+                                <span class="warehouse-location">Create a new warehouse</span>
+                            </div>
+                        {% else %}
+                            <div class="workspace-empty-state">
+                                <div class="empty-icon">🏗️</div>
+                                <div class="empty-text">No warehouses yet</div>
+                                <div class="empty-description">Create your first warehouse to get started</div>
+                                <a href="{{ url_for('msme.add_warehouse') }}" class="add-warehouse-btn">
+                                    <span class="btn-icon">➕</span>
+                                    Add Warehouse
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card" onclick="animateCard(this)">
+                <div class="stat-value">{{ incoming_orders }}</div>
+                <div class="stat-label">Incoming Orders</div>
+            </div>
+            <div class="stat-card" onclick="animateCard(this)">
+                <div class="stat-value">{{ outgoing_orders }}</div>
+                <div class="stat-label">Outgoing Shipments</div>
+            </div>
+            <div class="stat-card" onclick="animateCard(this)">
+                <div class="stat-value">{{ warehouse_count }}</div>
+                <div class="stat-label">Warehouses</div>
+            </div>
+            <div class="stat-card" onclick="animateCard(this)">
+                <div class="stat-value">{{ incoming_orders + outgoing_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+        </div>
+
+        <!-- Main Layout with Map and Upcoming Deliveries -->
+        <div class="main-layout">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div class="map-header">
+                    <div class="map-title">Live Tracking Map</div>
+                    <div class="map-controls">
+                        <button class="map-btn" onclick="refreshMap()">Reset Map</button>
+                        <button class="map-btn" onclick="openLTC()">Full View</button>
+                    </div>
+                </div>
+                <div class="map-display" id="dashboardMap">
+                    <!-- Interactive map will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Upcoming Deliveries -->
+            <div class="upcoming-deliveries">
+                <div class="upcoming-title">
+                    Upcoming Deliveries
+                </div>
+                {% if recent_orders %}
+                    {% for order in recent_orders[:5] %}
+                    <div class="upcoming-item">
+                        <div class="delivery-id">DEL-{{ order.id }}</div>
+                        <div class="delivery-time">Expected: {{ order.time_slot }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="upcoming-item">
+                        <div class="delivery-id">No upcoming deliveries</div>
+                        <div class="delivery-time">Create your first order</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Active Deliveries Table -->
+        <div class="active-deliveries">
+            <div class="table-header">
+                <div class="table-title">Active Deliveries</div>
+                <button class="add-delivery-btn" onclick="addNewDelivery()">+ Add New Delivery</button>
+            </div>
+            
+            <div class="table-scroll">
+                <table class="deliveries-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle ID</th>
+                            <th>Logistics Company</th>
+                            <th>Route/Type</th>
+                            <th>Supplier</th>
+                            <th>Status</th>
+                            <th>ETA</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_orders %}
+                            {% for order in recent_orders[:6] %}
+                            <tr>
+                                <td class="delivery-row-id">DEL-{{ order.id }}</td>
+                                <td>
+                                    <div class="company-name">{{ order.logistic_company }}</div>
+                                    <div class="delivery-info">
+                                        {% if order.driver %}
+                                            Driver: {{ order.driver.name }}
+                                        {% else %}
+                                            Driver: Not assigned
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="company-name">
+                                        {% if order.order_type == 'incoming' %}
+                                            🔄 Incoming
+                                        {% else %}
+                                            📤 Outgoing
+                                        {% endif %}
+                                    </div>
+                                    <div class="delivery-info">{{ order.package_type|title }}</div>
+                                </td>
+                                <td>
+                                    <div class="company-name">
+                                        {% if order.supplier_name %}
+                                            {{ order.supplier_name }}
+                                        {% else %}
+                                            {{ current_user.name }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="delivery-info">
+                                        {% if order.supplier_phone %}
+                                            Contact: {{ order.supplier_phone }}
+                                        {% else %}
+                                            Contact: N/A
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if order.date < now_date %}
+                                    <div class="status-badge status-complete">Delivered</div>
+                                    {% else %}
+                                    <div class="status-badge status-pending">
+                                        {% if order.order_type == 'incoming' %}
+                                            Incoming
+                                        {% else %}
+                                            Outgoing
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="company-name">{{ order.time_slot }}</div>
+                                    <div class="delivery-info">{{ order.date.strftime('%d-%m-%Y') }}</div>
+                                </td>
+                                <td>
+                                    <div class="company-name 
+                                        {% if order.package_priority == 'high' %} #f59e0b
+                                        {% elif order.package_priority == 'medium' %} #8b5cf6
+                                        {% else %} #14b8a6
+                                        {% endif %}">
+                                        {{ order.package_priority|title }}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 20px;">
+                                    <div class="empty-state">
+                                        <h3>No Orders Yet</h3>
+                                        <p>You haven't created any orders yet. Create your first order to get started.</p>
+                                        <a href="{{ url_for('msme.add_order') }}" style="text-decoration: none;" class="btn btn-primary">Create Your First Order</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+   
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    window.ACTIVE_ORDERS_COUNT = {{ active_orders_count or 0 }};
+    window.MAX_TRUCKS_ON_MAP = 10;
+    window.TRUCKS_TO_SHOW = Math.min(window.ACTIVE_ORDERS_COUNT, window.MAX_TRUCKS_ON_MAP);
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

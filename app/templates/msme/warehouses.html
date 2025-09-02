@@ -1,0 +1,555 @@
+{% extends "base.html" %}
+
+{% block title %}My Warehouses{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="warehouses-container">
+    <div class="warehouses-wrapper">
+        <!-- Header Section -->
+        <div class="warehouses-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 21H21V3L3 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 21V15H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h1>My Warehouses</h1>
+                    <p>Manage your warehouse locations and view order statistics</p>
+                </div>
+            </div>
+            <a href="{{ url_for('msme.add_warehouse') }}" class="add-warehouse-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Add New Warehouse
+            </a>
+        </div>
+
+        <!-- Content Section -->
+        <div class="warehouses-content">
+            {% if warehouses %}
+            <div class="warehouses-grid">
+                {% for warehouse in warehouses %}
+                <div class="warehouse-card">
+                    <div class="card-header">
+                        <div class="warehouse-info">
+                            <h3>{{ warehouse.name }}</h3>
+                            <span class="status-badge {{ 'active' if warehouse.is_active else 'inactive' }}">
+                                {{ 'Active' if warehouse.is_active else 'Inactive' }}
+                            </span>
+                        </div>
+                        <div class="warehouse-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Orders</span>
+                                <span class="stat-value">{{ warehouse.orders|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="warehouse-details">
+                        <div class="detail-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10C21 17L12 23L3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>{{ warehouse.address }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>{{ warehouse.city }}, {{ warehouse.state }} - {{ warehouse.pincode }}</span>
+                        </div>
+                        {% if warehouse.contact_person %}
+                        <div class="detail-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>{{ warehouse.contact_person }}</span>
+                        </div>
+                        {% endif %}
+                        {% if warehouse.contact_phone %}
+                        <div class="detail-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7294C21.7209 20.9846 21.5573 21.2136 21.3523 21.4014C21.1473 21.5892 20.9054 21.7315 20.6407 21.8197C20.376 21.9079 20.0942 21.9401 19.81 21.914C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77382 17.3146 6.72533 15.2661 5.18999 12.85C3.49997 10.2412 2.44824 7.27099 2.11999 4.19C2.09394 3.90597 2.12616 3.62425 2.21438 3.35962C2.3026 3.09499 2.44488 2.85315 2.63266 2.64818C2.82044 2.44321 3.04942 2.27872 3.30463 2.16716C3.55984 2.0556 3.83556 1.99867 4.114 2H7.114C7.59523 1.99522 8.06565 2.16708 8.43373 2.48353C8.80182 2.79999 9.04201 3.23945 9.11399 3.72C9.23669 4.68007 9.47144 5.62273 9.81399 6.53C9.91837 6.88792 9.91693 7.25777 9.80971 7.61457C9.70249 7.97137 9.49342 8.29862 9.20399 8.56L8.40399 9.36C9.74788 11.6766 11.6234 13.5521 13.94 14.89L14.74 14.09C15.0014 13.8006 15.3286 13.5915 15.6854 13.4843C16.0422 13.3771 16.4121 13.3757 16.77 13.48C17.6773 13.8226 18.6199 14.0573 19.58 14.18C20.0605 14.252 20.5 14.4922 20.8165 14.8603C21.133 15.2284 21.3048 15.6988 21.3 16.18L22 16.92Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>{{ warehouse.contact_phone }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="detail-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 2V5M16 2V5M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>Created {{ warehouse.created_at.strftime('%B %d, %Y') }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="warehouse-actions">
+                        <a href="{{ url_for('msme.orders', warehouse_id=warehouse.id) }}" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            View Orders ({{ warehouse.orders|length }})
+                        </a>
+                        <a href="{{ url_for('msme.edit_warehouse', warehouse_id=warehouse.id) }}" class="btn btn-outline">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2"/>
+                                <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            Edit
+                        </a>
+                        {% if warehouse.orders|length == 0 %}
+                        <form method="POST" action="{{ url_for('msme.delete_warehouse', warehouse_id=warehouse.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this warehouse?')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                Delete
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 21H21V3L3 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 21V15H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3>No Warehouses Yet</h3>
+                <p>You haven't added any warehouses yet. Add your first warehouse to start managing orders and inventory.</p>
+                <a href="{{ url_for('msme.add_warehouse') }}" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Add Your First Warehouse
+                </a>
+            </div>
+            {% endif %}
+            
+            <div class="back-link">
+                <a href="{{ url_for('msme.dashboard') }}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.warehouses-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 20px;
+}
+
+.warehouses-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Header Section */
+.warehouses-header {
+    background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+    color: white;
+    padding: 40px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-icon {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 16px;
+    border-radius: 12px;
+    color: white;
+}
+
+.header-text h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.header-text p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.add-warehouse-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    text-decoration: none;
+    padding: 16px 28px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.add-warehouse-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Content Section */
+.warehouses-content {
+    padding: 40px 30px;
+}
+
+.warehouses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+/* Warehouse Card */
+.warehouse-card {
+    background: white;
+    border-radius: 16px;
+    border: 2px solid #f1f5f9;
+    padding: 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.warehouse-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #14b8a6, #0f766e);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.warehouse-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: #14b8a6;
+}
+
+.warehouse-card:hover::before {
+    opacity: 1;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.warehouse-info h3 {
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.inactive {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.warehouse-stats {
+    text-align: right;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #14b8a6;
+}
+
+/* Warehouse Details */
+.warehouse-details {
+    margin-bottom: 24px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item svg {
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.detail-item span {
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Warehouse Actions */
+.warehouse-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(20, 184, 166, 0.4);
+}
+
+.btn-outline {
+    border: 2px solid #e2e8f0;
+    color: #6b7280;
+    background: white;
+}
+
+.btn-outline:hover {
+    border-color: #14b8a6;
+    color: #14b8a6;
+    background: #f0fdfa;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 2px dashed #e2e8f0;
+    margin: 40px 0;
+}
+
+.empty-icon {
+    margin-bottom: 24px;
+    color: #9ca3af;
+}
+
+.empty-state h3 {
+    color: #374151;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin-bottom: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* Back Link */
+.back-link {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 2px solid #f1f5f9;
+}
+
+.back-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.back-link a:hover {
+    color: #14b8a6;
+    background: #f0fdfa;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .warehouses-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .warehouses-container {
+        padding: 10px;
+    }
+    
+    .warehouses-wrapper {
+        border-radius: 12px;
+    }
+    
+    .warehouses-header {
+        padding: 30px 20px;
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-text h1 {
+        font-size: 2rem;
+    }
+    
+    .warehouses-content {
+        padding: 30px 20px;
+    }
+    
+    .warehouses-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .warehouse-card {
+        padding: 20px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .warehouse-stats {
+        text-align: left;
+    }
+    
+    .stat-item {
+        align-items: flex-start;
+    }
+    
+    .warehouse-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .empty-state {
+        padding: 60px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-text h1 {
+        font-size: 1.75rem;
+    }
+    
+    .warehouses-content {
+        padding: 20px 15px;
+    }
+    
+    .warehouse-card {
+        padding: 16px;
+    }
+    
+    .empty-state {
+        padding: 40px 20px;
+    }
+}
+</style>
+{% endblock %}

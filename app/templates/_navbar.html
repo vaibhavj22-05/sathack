@@ -1,0 +1,86 @@
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="{{ url_for('views.home') }}" class="logo-section" aria-label="Go to Home">
+            <div class="logo-icon">
+                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ParkNLoad logo">
+            </div>
+        </a>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ url_for('msme.dashboard') }}" class="nav-link" onclick="setActive(this)">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('msme.orders') }}" class="nav-link" onclick="setActive(this)">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('msme.inventory') }}" class="nav-link" onclick="setActive(this)">Inventory</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('msme.analysis') }}" class="nav-link" onclick="setActive(this)">Analysis</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('msme.ltc') }}" class="nav-link" onclick="setActive(this)">Live Tracking</a>
+            </li>
+        </ul>
+
+        <div class="user-section">
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            <div class="profile-dropdown">
+                <button class="profile-btn" onclick="toggleProfileDropdown()" aria-label="Profile menu" aria-expanded="false" aria-haspopup="true">{{ current_user.name[0] if current_user.is_authenticated else 'G' }}</button>
+                <div class="profile-dropdown-menu" id="profileDropdown" role="menu" aria-labelledby="profileBtn">
+                    {% if current_user.is_authenticated %}
+                    <div class="profile-dropdown-header">
+                        <div class="profile-avatar">{{ current_user.name[0] }}</div>
+                        <div class="profile-info">
+                            <div class="profile-name">{{ current_user.name }}</div>
+                            <div class="profile-email">{{ current_user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="profile-dropdown-divider"></div>
+                    <a href="#" class="profile-dropdown-item" onclick="showProfile()">
+                        <span class="profile-icon">👤</span>
+                        Show Profile
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="profile-dropdown-item logout-item">
+                        <span class="profile-icon">🚪</span>
+                        Logout
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="profile-dropdown-item">
+                        <span class="profile-icon">🔐</span>
+                        Login
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Navigation -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav-header">
+        <div class="logo-section">
+            <div class="logo-icon">P</div>
+        </div>
+        <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
+    </div>
+    <ul class="mobile-nav-menu">
+        <li class="mobile-nav-item">
+            <a href="{{ url_for('msme.dashboard') }}" class="mobile-nav-link" onclick="setMobileActive(this)">Dashboard</a>
+        </li>
+        <li class="mobile-nav-item">
+            <a href="{{ url_for('msme.add_order') }}" class="mobile-nav-link" onclick="setMobileActive(this)">Add Delivery</a>
+        </li>
+        <li class="mobile-nav-item">
+            <a href="{{ url_for('msme.warehouses') }}" class="mobile-nav-link" onclick="setMobileActive(this)">Warehouse Management</a>
+        </li>
+        <li class="mobile-nav-item">
+            <a href="{{ url_for('msme.ltc') }}" class="mobile-nav-link" onclick="setMobileActive(this)">Live Tracking</a>
+        </li>
+    </ul>
+</div>
+
+

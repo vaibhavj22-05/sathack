@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}LTC Logistics Traffic Control{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ltc.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <header class="gradient-header border-bottom shadow-soft">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-building text-primary"></i>
+                    <i class="fas fa-truck text-primary"></i>
+                </div>
+                <div class="header-text">
+                    <h1>LTC Logistics Traffic Control</h1>
+                    <p>Real-time warehouse traffic management system</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Status Cards -->
+        <div class="status-cards" id="statusCards">
+            <!-- Status cards will be populated by JavaScript -->
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Map Section -->
+            <div class="map-section">
+                <div class="card shadow-medium">
+                    <div class="card-header">
+                        <h2>
+                            <div class="status-indicator bg-primary"></div>
+                            Live Traffic Map
+                        </h2>
+                    </div>
+                    <div class="map-container" id="logisticsMap"></div>
+                </div>
+
+                <!-- Truck Table -->
+                <div class="card shadow-medium" id="truckTable">
+                    <!-- Truck table will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Control Panel -->
+                <div class="card shadow-medium" id="controlPanel">
+                    <!-- Control panel will be populated by JavaScript -->
+                </div>
+
+                <!-- Buffer Zone Status -->
+                <div class="card shadow-medium" id="bufferZoneStatus">
+                    <!-- Buffer zone status will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-top bg-muted-20">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    © 2024 LTC Logistics. Real-time traffic control system.
+                </div>
+                <div class="system-status">
+                    <span>System Status: </span>
+                    <div class="status-indicator">
+                        <div class="status-dot bg-success animate-pulse"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/ltc.js') }}"></script>
+{% endblock %}

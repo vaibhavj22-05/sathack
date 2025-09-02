@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}ParkNLoad - Home{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+
+<!-- HERO SECTION -->
+<div class="home">
+    <video id="video" autoplay loop muted>
+        <source src="{{ url_for('static', filename='assets/Logistics_and_Inventory_Background_Animation.mp4') }}" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <!-- NAVBAR -->
+    <div class="nav-container">
+        <div class="logo_name">
+            <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ParkNload" class="logo">
+        </div>
+
+        <div class="mainNav">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+
+        <div class="credentials">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.login') }}" class="main-button login-button">Login</a>
+            {% else %}
+                <a href="{{ url_for('msme.dashboard') }}" class="main-button signup-button">Go to Dashboard</a>
+            {% endif %}
+        </div>
+
+        <div class="mobile-nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer">
+        <button class="mobile-nav-close">&times;</button>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="mobile-nav-buttons">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.login') }}" class="main-button login-button">Login</a>
+            {% else %}
+                <a href="{{ url_for('msme.dashboard') }}" class="main-button signup-button">Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- HERO CONTENT -->
+    <div class="hero-section">
+        <div class="content">
+            <h1 class="heading-1">
+                <span>Park</span><span>NLoad</span><br>
+                <span>Logistics & Inventory Management</span>
+            </h1>
+            <p class="hero-subtitle">
+                From Chaos to Coordination - Every Truck, Every Shelf
+            </p>
+            <div class="hero-buttons">
+                <a href="#services" class="hero-btn btn-primary">Our Services</a>
+                <a href="#contact" class="hero-btn btn-secondary">Get In Touch</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SERVICES SECTION -->
+<section id="services" class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-subtitle">
+                Clear features and services that make ParkNLoad your complete logistics solution
+            </p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <h3 class="service-title">Logistics Traffic Control</h3>
+                <p class="service-text">
+                    Smooth truck flow with real-time notifications and dock management to prevent congestion.
+                </p>
+                <button class="service-btn">Learn More</button>
+            </div>
+            
+            <div class="service-card">
+                <h3 class="service-title">Inventory Management</h3>
+                <p class="service-text">
+                    Digitize your warehouse operations with virtual zoning, real-time stock tracking, and automatic updates for optimal storage and organization.
+                </p>
+                <button class="service-btn">Learn More</button>
+            </div>
+            
+            <div class="service-card">
+                <h3 class="service-title">IoT Forecasting</h3>
+                <p class="service-text">
+                   Predict stockouts, overstock, and seasonal demand using smart analytics.
+                </p>
+                <button class="service-btn">Learn More</button>
+            </div>
+            
+            <div class="service-card">
+                <h3 class="service-title">Driver Communication</h3>
+                <p class="service-text">
+                    Real-time chat and updates between MSMEs and drivers for seamless coordination.
+                </p>
+                <button class="service-btn">Learn More</button>
+            </div>
+            
+            <div class="service-card">
+                <h3 class="service-title">Multi-Warehouse Management</h3>
+                <p class="service-text">
+                    Track and manage inventory across multiple warehouses efficiently.
+                </p>
+                <button class="service-btn">Learn More</button>
+            </div>
+            
+            <div class="service-card">
+                <h3 class="service-title">Prioritization & Load Optimization</h3>
+                <p class="service-text">
+                    Prioritize trucks and optimize warehouse operations based on goods type and urgency.
+                </p>
+                <button class="service-btn">Learn More</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT SECTION -->
+<section id="about" class="about-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">About ParkNLoad</h2>
+        </div>
+        
+        <div class="about-content">
+            <div class="about-visual">
+                <video id="demo-video" autoplay loop muted>
+                  <source src="{{ url_for('static', filename='assets/workflow.mp4') }}" type="video/mp4">
+                </video>
+            </div>
+            
+            <div class="about-text">
+                <h2>From Chaos to Coordination</h2>
+                <p>
+                    ParkNLoad is a modular system that solves last-mile truck chaos and warehouse inefficiencies for MSMEs. Our platform seamlessly coordinates truck traffic, digitizes warehouse inventory, and provides predictive insights, ensuring every delivery and stock movement is smooth and efficient.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TEAM SECTION -->
+<section id="contact" class="team-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Meet Our Team</h2>
+            <p class="section-subtitle">
+                The passionate minds behind ParkNLoad's innovative solutions
+            </p>
+        </div>
+        
+        <div class="team-grid">
+            <div class="team-card fade-in">
+                <div class="team-avatar">
+                    <img src="{{ url_for('static', filename='assets/Spiderman.png') }}" alt="">
+                </div>
+                <h3 class="team-name">Chirag Tuteja</h3>
+                <p class="team-role">Founder & CEO</p>
+                <p class="team-bio">Visionary leader with 15+ years in logistics technology and warehouse management solutions.</p>
+            </div>
+            
+            <div class="team-card fade-in">
+                <div class="team-avatar">
+                    <img src="{{ url_for('static', filename='assets/dc.jpg') }}" alt="">
+                </div>
+                <h3 class="team-name">Vaibhav Jain</h3>
+                <p class="team-role">CTO & Co-founder</p>
+                <p class="team-bio">Tech innovator specializing in IoT systems and predictive analytics for supply chain optimization.</p>
+            </div>
+            
+            <div class="team-card fade-in">
+                <div class="team-avatar">
+                    <img src="{{ url_for('static', filename='assets/criminal.jpeg') }}" alt="">
+                </div>
+                <h3 class="team-name">Snehashish Ghosh</h3>
+                <p class="team-role">Operations Head</p>
+                <p class="team-bio">Operations expert ensuring smooth implementation and seamless user experience across all platforms.</p>
+            </div>
+            
+            <div class="team-card fade-in">
+                <div class="team-avatar">
+                    <img src="{{ url_for('static', filename='assets/Spiderman.png') }}" alt="">
+                </div>
+                <h3 class="team-name">Shubhi Upadhyay</h3>
+                <p class="team-role">Business Development</p>
+                <p class="team-bio">Strategic partnerships specialist connecting MSMEs with innovative logistics solutions nationwide.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

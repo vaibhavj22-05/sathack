@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis & Insights{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h2>Analysis & Insights</h2>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="generateForecast()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/>
+                </svg>
+                Generate Forecast
+            </button>
+        </div>
+    </div>
+
+    <!-- Current Warehouse Info -->
+    {% if current_warehouse %}
+    <div class="warehouse-info">
+        <h3>📊 Analysis for: {{ current_warehouse.name }}</h3>
+        <p>{{ current_warehouse.address }}, {{ current_warehouse.city }}, {{ current_warehouse.state }}</p>
+    </div>
+    {% else %}
+    <div class="warehouse-info">
+        <h3>📊 Overall Business Analysis</h3>
+        <p>Showing insights across all warehouses</p>
+    </div>
+    {% endif %}
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon total-orders">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>{{ total_orders }}</h3>
+                <p>Total Orders</p>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon incoming">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>{{ incoming_orders }}</h3>
+                <p>Incoming Orders</p>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon outgoing">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>{{ outgoing_orders }}</h3>
+                <p>Outgoing Orders</p>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon efficiency">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>{{ "%.1f"|format((total_orders / 30) if total_orders > 0 else 0) }}</h3>
+                <p>Orders/Day (Avg)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Analysis Sections -->
+    <div class="analysis-grid">
+        <!-- Priority Distribution Chart -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <h3>📈 Priority Distribution</h3>
+                <p>Order priority breakdown</p>
+            </div>
+            <div class="chart-container">
+                <div class="priority-chart">
+                    {% for priority, count in priority_stats.items() %}
+                    {% if count > 0 %}
+                    <div class="priority-bar">
+                        <div class="priority-label">{{ priority }}</div>
+                        <div class="bar-container">
+                            <div class="bar" style="width: {{ (count / total_orders * 100) if total_orders > 0 else 0 }}%"></div>
+                        </div>
+                        <div class="priority-count">{{ count }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Package Type Distribution -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <h3>📦 Package Type Analysis</h3>
+                <p>Distribution by package type</p>
+            </div>
+            <div class="chart-container">
+                <div class="package-chart">
+                    {% for package_type, count in package_type_stats.items() %}
+                    {% if count > 0 %}
+                    <div class="package-item">
+                        <div class="package-type">{{ package_type }}</div>
+                        <div class="package-bar">
+                            <div class="bar-fill" style="width: {{ (count / total_orders * 100) if total_orders > 0 else 0 }}%"></div>
+                        </div>
+                        <div class="package-count">{{ count }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Trends -->
+        <div class="analysis-card full-width">
+            <div class="card-header">
+                <h3>📅 Monthly Order Trends</h3>
+                <p>Order volume over the last 6 months</p>
+            </div>
+            <div class="chart-container">
+                <div class="trend-chart">
+                    {% for month_data in monthly_data %}
+                    <div class="month-column">
+                        <div class="month-label">{{ month_data.month }}</div>
+                        <div class="month-bar" style="height: {{ (month_data.orders / (monthly_data|map(attribute='orders')|max)) * 200 if monthly_data|map(attribute='orders')|max > 0 else 0 }}px">
+                            <span class="month-value">{{ month_data.orders }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Logistics Partners -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <h3>🚚 Top Logistics Partners</h3>
+                <p>Most used logistics companies</p>
+            </div>
+            <div class="logistics-list">
+                {% for logistics in logistics_stats %}
+                <div class="logistics-item">
+                    <div class="company-name">{{ logistics.logistic_company }}</div>
+                    <div class="company-orders">{{ logistics.count }} orders</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Forecast Section -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <h3>🔮 Demand Forecasting</h3>
+                <p>AI-powered predictions</p>
+            </div>
+            <div class="forecast-content">
+                <div class="forecast-metrics">
+                    <div class="forecast-item">
+                        <span class="forecast-label">Next Month:</span>
+                        <span class="forecast-value" id="nextMonthForecast">--</span>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-label">Peak Season:</span>
+                        <span class="forecast-value" id="peakSeasonForecast">--</span>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-label">Growth Rate:</span>
+                        <span class="forecast-value" id="growthRateForecast">--</span>
+                    </div>
+                </div>
+                <div class="forecast-actions">
+                    <button class="btn btn-outline btn-sm" onclick="refreshForecast()">Refresh</button>
+                    <button class="btn btn-primary btn-sm" onclick="exportForecast()">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights and Recommendations -->
+    <div class="insights-section">
+        <h3>💡 Insights & Recommendations</h3>
+        <div class="insights-grid">
+            <div class="insight-card">
+                <div class="insight-icon">📊</div>
+                <h4>Performance Analysis</h4>
+                <p>Based on your current data, you're processing an average of {{ "%.1f"|format((total_orders / 30) if total_orders > 0 else 0) }} orders per day.</p>
+            </div>
+            
+            <div class="insight-card">
+                <div class="insight-icon">🎯</div>
+                <h4>Optimization Tips</h4>
+                <p>Consider optimizing your logistics partnerships based on performance data and customer feedback.</p>
+            </div>
+            
+            <div class="insight-card">
+                <div class="insight-icon">📈</div>
+                <h4>Growth Opportunities</h4>
+                <p>Your {{ "%.1f"|format((incoming_orders / total_orders * 100) if total_orders > 0 else 0) }}% incoming orders suggest strong supplier relationships.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="{{ url_for('msme.dashboard') }}">← Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- Forecast Modal -->
+<div id="forecastModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🔮 AI Forecast Generation</h3>
+            <span class="close" onclick="closeForecastModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="forecast-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="forecastProgress"></div>
+                </div>
+                <p id="forecastStatus">Initializing AI analysis...</p>
+            </div>
+            <div class="forecast-results" id="forecastResults" style="display: none;">
+                <h4>Forecast Results</h4>
+                <div class="forecast-data">
+                    <div class="forecast-row">
+                        <span>Next Month Orders:</span>
+                        <span id="modalNextMonth">--</span>
+                    </div>
+                    <div class="forecast-row">
+                        <span>Peak Season:</span>
+                        <span id="modalPeakSeason">--</span>
+                    </div>
+                    <div class="forecast-row">
+                        <span>Growth Rate:</span>
+                        <span id="modalGrowthRate">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="applyForecast()">Apply Forecast</button>
+            <button class="btn btn-outline" onclick="closeForecastModal()">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+{% endblock %}
+
