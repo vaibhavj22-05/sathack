@@ -73,7 +73,7 @@ function generateForecast() {
     showForecastModal();
     
     // Simulate AI analysis process
-    simulateForecastGeneration();
+    window.location.href = "http://127.0.0.1:5550";
 }
 
 // Simulate forecast generation process

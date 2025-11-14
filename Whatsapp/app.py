@@ -2,7 +2,6 @@ from fileinput import filename
 from flask import Flask, request, render_template, send_from_directory
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
-from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import os
 import time
@@ -30,8 +29,6 @@ FROM_WHATSAPP = os.getenv("FROM_WHATSAPP")
 
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
-scheduler = BackgroundScheduler()
-scheduler.start()
 
 # Initialize DB
 def init_db():
@@ -118,7 +115,7 @@ def send_hardcoded():
         message = client.messages.create(
             from_=FROM_WHATSAPP,
             to='whatsapp:+918506007646',   # replace with your number
-            body="🚨 Attention Driver 🚨\nPlease start your live location tracking immediately:\n\n👉 http://127.0.0.1:5000/drivers/   \nYour PIN is : 5869")
+            body="🚨 Attention Driver 🚨\nPlease start your live location tracking immediately:\n\n👉 http://127.0.0.1:5050/drivers/   \nYour PIN is : 5869")
 
         return f"✅ Message sent with SID: {message.sid}"
     except Exception as e:
@@ -237,19 +234,19 @@ def delivery_status():
     conn.close()
     return render_template('status.html', statuses=status_logs)
 
-def schedule_reminders(user_number):
-    for i in range(0, 60, 5):
-        run_at = datetime.now() + timedelta(minutes=i)
-        job_id = f"{user_number}_{i}"
-        scheduler.add_job(
-            send_reminder,
-            'date',
-            run_date=run_at,
-            args=[user_number],
-            id=job_id,
-            misfire_grace_time=60,
-            replace_existing=True
-        )
+# def schedule_reminders(user_number):
+#     for i in range(0, 60, 5):
+#         run_at = datetime.now() + timedelta(minutes=i)
+#         job_id = f"{user_number}_{i}"
+#         scheduler.add_job(
+#             send_reminder,
+#             'date',
+#             run_date=run_at,
+#             args=[user_number],
+#             id=job_id,
+#             misfire_grace_time=60,
+#             replace_existing=True
+#         )
 
 def send_reminder(user_number):
     try:
